@@ -33,16 +33,29 @@ def get_color (tim):
 		return (20,0,0)
 
 def get_text_color ():
-	arr=atac.get_time_of_arrival ()
-	if arr < 0:
-		return ("no data for 715", get_color(arr) )
+	closer_m, closer_s, n_stop, msg = atac.get_time_of_arrival_2 ()
+	if closer_m < 0:
+		if closer_s == -1 and len(msg):
+			return (msg, (0,20,0))
+		else:
+			return ("no data for %s" % atac.get_line (), get_color(closer_m) )
 	else:	
-		return ("715 in %d min" % arr, get_color(arr) )
+		return ("%s in %d min" % (atac.get_line (), closer_m), get_color(closer_m) )
 
 
 	
 if __name__ == '__main__':
 	
+	if len(sys.argv) < 2:
+		print "Syntax:"
+		print "  $s line pole" % (sys.argv[0])
+		print
+		quit()
+
+	# initialize atac module
+	atac.set_line (sys.argv[1])
+	atac.set_pole (sys.argv[2])
+
 	# load font
 	font = ImageFont.truetype('../fonts/Ubuntu-B.ttf', 32)
 		

@@ -11,6 +11,11 @@ import os
 
 DEV_KEY = os.environ['ATAC_DEV_KEY']
 
+#
+# global data
+#
+linea = ''
+palina = 0
 token = 0
 
 print "Atac module connecting to the server..."
@@ -30,14 +35,22 @@ except:
    exit (255)	
 
 
-linea = '715'
-palina = 78636
+def set_line (nl):
+	global linea
+	linea = nl
 
+def set_pole (np):
+	global palina
+	palina = np
 
-#res = s2.paline.Previsioni(token, '70101', 'it')
-#pprint(res)
-#x = s2.paline.PalinaLinee (token, '70101', 'it');
-#pprint(x)
+def get_line ():
+	global linea
+	return linea
+
+def get_pole ():
+	global palina
+	return palina
+
 
 def ListStops (line):
 	####
@@ -97,6 +110,35 @@ def get_time_of_arrival ():
 	return closer
 	
 	
+def get_time_of_arrival_2 ():
+
+	arrivi = s2.paline.Previsioni(token, palina, 'it')
+	##pprint (arrivi)
+	lista_arrivi = arrivi['risposta']['arrivi']
+
+	#print ("##### lista arrivi palina %d:" % palina)
+	#pprint (lista_arrivi)
+
+	closer_m = -1
+	closer_s = -1
+	n_stop = -1
+	msg = ""
+
+	if len(lista_arrivi) > 0:
+		for item in lista_arrivi:
+			#print ("%s: %d" % (item['linea'], item['tempo_attesa'] ))
+			t = item['tempo_attesa']
+			if (closer_m < 0 or t < closer_m):
+				closer_m = t
+				n_stop = item['distanza_fermate']
+				closer_s = item['tempo_attesa_secondi']
+				msg = item['annuncio']
+
+	#print "%d %d %s .%s." % (closer_m, closer_s, n_stop, msg)
+
+	return closer_m, closer_s, n_stop, msg
+
+
 import threading
 import time
 
