@@ -1,3 +1,6 @@
+import base64
+import urllib
+from urllib import unquote, splittype, splithost
 try:
   # Python 2 import
   from xmlrpclib import Server
@@ -8,6 +11,36 @@ except ImportError:
 from pprint import pprint
 import os
 
+import xmlrpclib
+
+class UrllibTransport(xmlrpclib.Transport):
+    def set_proxy(self, proxy):
+        self.proxyurl = proxy
+
+    def request(self, host, handler, request_body, verbose=0):
+        type, r_type = splittype(self.proxyurl)
+        phost, XXX = splithost(r_type)
+
+        puser_pass = None
+        if '@' in phost:
+            user_pass, phost = phost.split('@', 1)
+            if ':' in user_pass:
+                user, password = user_pass.split(':', 1)
+                puser_pass = base64.encodestring('%s:%s' % (unquote(user),
+                                                unquote(password))).strip()
+
+        urlopener = urllib.FancyURLopener({'http':'http://%s'%phost})
+        if not puser_pass:
+            urlopener.addheaders = [('User-agent', self.user_agent)]
+        else:
+            urlopener.addheaders = [('User-agent', self.user_agent),
+                                    ('Proxy-authorization', 'Basic ' + puser_pass) ]
+
+        host = unquote(host)
+        f = urlopener.open("http://%s%s"%(host,handler), request_body)
+
+        self.verbose = verbose
+        return self.parse_response(f)
 
 DEV_KEY = os.environ['ATAC_DEV_KEY']
 
@@ -18,11 +51,19 @@ linea = ''
 palina = 0
 token = 0
 
-print "Atac module connecting to the server..."
+# define a proxy
+try:
+	proxy = os.environ['ATAC_PROXY']
+	p = UrllibTransport()
+	p.set_proxy(proxy)
+except:
+	p = None
+
+print "Atac module connecting to the server..........."
 
 try:
-   s1 = Server('http://muovi.roma.it/ws/xml/autenticazione/1')
-   s2 = Server('http://muovi.roma.it/ws/xml/paline/7')
+   s1 = Server('http://muovi.roma.it/ws/xml/autenticazione/1', transport=p)
+   s2 = Server('http://muovi.roma.it/ws/xml/paline/7', transport=p)
 except:
    print ("Data error")
    exit (254)	
@@ -152,22 +193,22 @@ class QueryThread(threading.Thread):
 
 	def get_time_of_arrival(self):
 		arrivi = s2.paline.Previsioni(token, self.palina, 'it')
-		##pprint (arrivi)
+		#pprint (arrivi)
 		lista_arrivi = arrivi['risposta']['arrivi']
 	
 		#print ("##### lista arrivi palina %d:" % palina)
 		#pprint (lista_arrivi)
-	
-		self.closer = 99999
+
+		closer = 99999
 	
 		if len(lista_arrivi) > 0:
 			for item in lista_arrivi:
-				#print ("%s: %d" % (item['linea'], item['tempo_attesa'] ))
+				print ("TT -> %s: %d" % (item['linea'], item['tempo_attesa'] ))
 				t = item['tempo_attesa']
-				if (t < self.closer): self.closer = t
+				if (t < closer): closer = t
 			
-			
-		### print "%d" % closer
+		self.closer = closer
+		print "TT closer -> %d" % self.closer
 	
 		return self.closer
 		 
@@ -175,17 +216,13 @@ class QueryThread(threading.Thread):
 	def run(self):
 		i = 0
 		while (1):
-			if i % 60:
-				try:
-					get_time_of_arrival ()
-				except:
-					self.closer = 9999
-				
+			self.get_time_of_arrival ()
+
 			if self.stop_f == True:
 				print "Thread stopped, exiting..."
 				return
 			else:
-				time.sleep (1)
+				time.sleep (60)
 				i = i + 1
 		
 	def get_arrival(self):
@@ -212,8 +249,8 @@ if __name__ == '__main__':
 	
 	print "Entering in loop"
 	x = 0
-	while (x < 2):
-		print ">>> %d" % thread1.get_arrival()
+	while (x < 2000):
+		print "MT >>>>>>>>>>> %d" % thread1.get_arrival()
 		time.sleep (10)
 		x = x + 1
 		
