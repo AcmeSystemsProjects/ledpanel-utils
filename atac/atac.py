@@ -216,17 +216,23 @@ class QueryThread(threading.Thread):
 	def run(self):
 		i = 0
 		while (1):
-			self.get_time_of_arrival ()
+			try:
+				self.get_time_of_arrival ()
+			except:
+				self.stop_f = True
 
 			if self.stop_f == True:
 				print "Thread stopped, exiting..."
 				return
 			else:
-				time.sleep (60)
+				time.sleep (30)
 				i = i + 1
-		
+
 	def get_arrival(self):
-		return self.closer
+		if self.stop_f != True:
+			return self.closer
+		else:
+			raise ValueError('Stopped thread')
 
 	def stop(self):
 		self.stop_f = True
