@@ -11,6 +11,11 @@ except ImportError:
 from pprint import pprint
 import os
 
+#
+# Authenticated Proxy management
+#
+# http://code.activestate.com/recipes/523016-using-xmlrpc-with-authenticated-proxy-server/
+#
 import xmlrpclib
 
 class UrllibTransport(xmlrpclib.Transport):
@@ -71,6 +76,7 @@ except:
 
 try:
    token = s1.autenticazione.Accedi(DEV_KEY, '')
+   print "Atac module initialized."
 except:
    print ("Communication error")
    exit (255)	
@@ -184,12 +190,14 @@ import threading
 import time
 
 class QueryThread(threading.Thread):
-	def __init__(self,line, palina):
+	def __init__(self,line, palina, loop_delay=60):
 		super(QueryThread, self).__init__()
 		self.line = line
 		self.palina = palina
 		self.closer = 9999
 		self.stop_f = False
+		self.ld = loop_delay
+		self.lock = threading.Lock()
 
 	def get_time_of_arrival(self):
 		arrivi = s2.paline.Previsioni(token, self.palina, 'it')
@@ -207,9 +215,11 @@ class QueryThread(threading.Thread):
 				t = item['tempo_attesa']
 				if (t < closer): closer = t
 			
+		self.lock.acquire()
 		self.closer = closer
 		print "TT closer -> %d" % self.closer
-	
+
+		self.lock.release()
 		return self.closer
 		 
 		 
@@ -225,41 +235,74 @@ class QueryThread(threading.Thread):
 				print "Thread stopped, exiting..."
 				return
 			else:
-				time.sleep (30)
+				time.sleep (self.ld)
 				i = i + 1
 
 	def get_arrival(self):
+		self.lock.acquire()
+
 		if self.stop_f != True:
-			return self.closer
+			x = self.closer
+			self.lock.release()
+			return x
 		else:
+			self.lock.release()
 			raise ValueError('Stopped thread')
 
 	def stop(self):
 		self.stop_f = True
 		self.join()
 		
-		
-thread1	= QueryThread('715', 78636)
-		
-def start():	
+
+thread1 = None
+
+def start(line, pole, delay):
+	global thread1
+	thread1 = QueryThread(line, pole, delay)
 	thread1.start() # This actually causes the thread to run	
 
 def stop():	
+	global thread1
 	thread1.stop() # This actually causes the thread to run	
 	
-print "Atac class initialized."	
 	
 if __name__ == '__main__':
-	print "Starting...."
-	start ()
-	
-	print "Entering in loop"
-	x = 0
-	while (x < 2000):
-		print "MT >>>>>>>>>>> %d" % thread1.get_arrival()
-		time.sleep (10)
-		x = x + 1
+
+	import sys
+
+	if len(sys.argv) < 2:
+		print "Syntax:"
+		print "  %s line pole [working period in sec]" % (sys.argv[0])
+		print
+		quit()
+
+	# initialize atac module
+	set_line (sys.argv[1])
+	set_pole (sys.argv[2])
+	try:
+		n = int(sys.argv[3])
+	except:
+		n = 10
+
+	ListStops (get_line())
+
+	print "Starting collector thread...."
+	# very low delay loop, for test only
+	start (get_line(), get_pole(), 1)
+
+	print "Entering in loop [%d]" % n
+	i = 0
+	while (i < n):
+		print "[%d] MT >>>>>>>>>>> %d" % (i, thread1.get_arrival())
+		try:
+			time.sleep (1)
+		except:
+			print "\n\nUser commanded STOP"
+			break
+
+		i = i + 1
 		
+	print "Stopping collector thread..."
 	stop()
 		
 
