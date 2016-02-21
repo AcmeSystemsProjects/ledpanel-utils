@@ -13,7 +13,7 @@ DEND="5"
 
 while true; do
 
-	hh=$(/bin/date +"%H")
+	hh=$(/bin/date +"%-H")
 	dd=$(/bin/date +"%w")
 
 	if [[ $hh -ge $HSTART &&  $hh -le $HEND ]] && [[ $dd -ge $DSTART && $dd -le $DEND ]] ; then
