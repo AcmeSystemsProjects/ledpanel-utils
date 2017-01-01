@@ -1,22 +1,36 @@
 #!/usr/bin/python
-# 2 digit counter example for 32x32 RGB led panel
+# 2*n digit counter example for RGB led panel
 
 import sys
 import os
 from PIL import Image, ImageDraw, ImageFont
 import StringIO
 import time
+import probe
 
 #Panel size
-size = 32, 32
+size = probe.panel_w, probe.panel_h
+print size
 
 #Load a TTF font
 font = ImageFont.truetype("fonts/Ubuntu-B.ttf", 26)
 
-#Count from 0 to 99
-for i in range(99,-1,-1):
+# compute how many digits have to be displayed
+nd = (probe.panel_w / 32) * 2
+# compute start count
+max_n = pow(10,nd) -1
+# compute format
+frmt = "%d" % nd
+frmt = '%0' + frmt + 'd'
+
+#print frmt
+#print nd
+#print max_n
+
+# Count backwards
+for i in range(max_n,-1,-1):
 	
-	#Create a 32x32 black image  
+	#Create a black image  
 	im=Image.new("RGB",size,"black")
 
 	#Create a draw object to draw primitives on the new image 
@@ -24,7 +38,7 @@ for i in range(99,-1,-1):
 	draw.fontmode="1" #No antialias
 	
 	#Format the counter in 2 digit
-	counter="%02d" % i
+	counter=frmt % i
 	
 	#Draw counter text on the panel 
 	draw.text((0,0), counter, (0,0,1<<5), font=font)

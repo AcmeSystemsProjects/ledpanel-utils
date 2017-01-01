@@ -2,6 +2,7 @@
 # Fill with a r g b color
 
 import sys
+import probe
 
 if len(sys.argv)<4 or len(sys.argv)>4:
 	print "Syntax:"
@@ -17,7 +18,7 @@ B=int(sys.argv[3])
 
 #Turn on all the led with the same color
 buf = bytearray()
-for i in range(1024):
+for i in range(probe.panel_w * probe.panel_h):   # 1024
 	buf.append(R)
 	buf.append(G)
 	buf.append(B)

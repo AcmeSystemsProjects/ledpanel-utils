@@ -2,13 +2,14 @@
 # Fill random
 
 import random
+import probe
 
-buf=bytearray(32*32*3)
+buf=bytearray(probe.panel_w * probe.panel_h * 3)
 
 while True:
 	i=0
-	for row in range (0,32):
-		for col in range (0,32):
+	for row in range (0,probe.panel_h):
+		for col in range (0,probe.panel_w):
 				buf[i+0]=random.randint(0,15)
 				buf[i+1]=random.randint(0,15)
 				buf[i+2]=random.randint(0,15)
