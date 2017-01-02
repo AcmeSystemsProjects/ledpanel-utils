@@ -3,11 +3,11 @@
 LINE="715"
 POLE="78636"
 
-HBEGIN="16"
+HBEGIN="14"
 HEND="19"
 
-DSTART="1"   # 0=SUNDAY 1 = MONDAY ... 5=FRIDAY 6=SATURDAY
-DEND="5"
+DBEGIN="1"   # 0=SUNDAY 1 = MONDAY ... 5=FRIDAY 6=SATURDAY
+DEND="6"
 
 /bin/date
 
@@ -16,9 +16,9 @@ while true; do
 	hh=$(/bin/date +"%-H")
 	dd=$(/bin/date +"%w")
 
-	if [[ $hh -ge $HSTART &&  $hh -le $HEND ]] && [[ $dd -ge $DSTART && $dd -le $DEND ]] ; then
+	if [[ $hh -ge $HBEGIN &&  $hh -le $HEND ]] && [[ $dd -ge $DBEGIN && $dd -le $DEND ]] ; then
 
-		/bin/date
+		#/bin/date
 
 		/usr/bin/timeout 600 /bin/sh -c "/usr/bin/python atac-panel.py $LINE $POLE"
 
