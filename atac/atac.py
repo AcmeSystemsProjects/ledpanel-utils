@@ -10,6 +10,7 @@ except ImportError:
 
 from pprint import pprint
 import os
+import sha
 
 #
 # Authenticated Proxy management
@@ -48,6 +49,7 @@ class UrllibTransport(xmlrpclib.Transport):
         return self.parse_response(f)
 
 DEV_KEY = os.environ['ATAC_DEV_KEY']
+USER_KEY = os.environ['ATAC_USERNAME']
 
 #
 # global data
@@ -75,7 +77,8 @@ except:
 
 
 try:
-   token = s1.autenticazione.Accedi(DEV_KEY, '')
+   hk = sha.new(USER_KEY)
+   token = s1.autenticazione.Accedi(DEV_KEY, hk.hexdigest())
    print "Atac module initialized."
 except:
    print ("Communication error")
@@ -173,13 +176,14 @@ def get_time_of_arrival_2 ():
 
 	if len(lista_arrivi) > 0:
 		for item in lista_arrivi:
-			#print ("%s: %d" % (item['linea'], item['tempo_attesa'] ))
-			t = item['tempo_attesa']
-			if (closer_m < 0 or t < closer_m):
-				closer_m = t
-				n_stop = item['distanza_fermate']
-				closer_s = item['tempo_attesa_secondi']
-				msg = item['annuncio']
+			if item['linea'] == linea:
+				#print ("%s: %d" % (item['linea'], item['tempo_attesa'] ))
+				t = item['tempo_attesa']
+				if (closer_m < 0 or t < closer_m):
+					closer_m = t
+					n_stop = item['distanza_fermate']
+					closer_s = item['tempo_attesa_secondi']
+					msg = item['annuncio']
 
 	#print "%d %d %s .%s." % (closer_m, closer_s, n_stop, msg)
 
@@ -210,10 +214,11 @@ class QueryThread(threading.Thread):
 		closer = 99999
 	
 		if len(lista_arrivi) > 0:
-			for item in lista_arrivi:
-				print ("TT -> %s: %d" % (item['linea'], item['tempo_attesa'] ))
-				t = item['tempo_attesa']
-				if (t < closer): closer = t
+			if item['linea'] == self.line:
+				for item in lista_arrivi:
+					print ("TT -> %s: %d" % (item['linea'], item['tempo_attesa'] ))
+					t = item['tempo_attesa']
+					if (t < closer): closer = t
 			
 		self.lock.acquire()
 		self.closer = closer
@@ -238,16 +243,16 @@ class QueryThread(threading.Thread):
 				time.sleep (self.ld)
 				i = i + 1
 
-	def get_arrival(self):
-		self.lock.acquire()
+#	def get_arrival(self):
+#		self.lock.acquire()
 
-		if self.stop_f != True:
-			x = self.closer
-			self.lock.release()
-			return x
-		else:
-			self.lock.release()
-			raise ValueError('Stopped thread')
+#		if self.stop_f != True:
+#			x = self.closer
+#			self.lock.release()
+#			return x
+#		else:
+#			self.lock.release()
+#			raise ValueError('Stopped thread')
 
 	def stop(self):
 		self.stop_f = True
