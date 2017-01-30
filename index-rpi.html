@@ -1,0 +1,165 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Page Title</title>
+
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<link rel="stylesheet" href="js/jquery.mobile-1.4.4.min.css" />
+	<script src="js/jquery-2.1.1.min.js"></script>
+	<script src="js/jquery.mobile-1.4.4.min.js"></script>
+	
+	<script>
+		$(document).ready(function() {
+
+			$("#button-send").click(function() {
+				$.ajax({
+					url: "set_color",
+					data: { 
+						red: $("#slider-red").val(), 
+						green: $("#slider-green").val(),
+						blue: $("#slider-blue").val() 
+					},
+					success: function( data ) {
+					},
+					error: function () {
+					}
+				});
+				$.ajax({
+					url: "set_sliding_delay",
+					data: { 
+						delay: $("#delay-slider").val() 
+					},
+					success: function( data ) {
+					},
+					error: function () {
+					}
+				});
+				$.ajax({
+					url: "send_message",
+					data: { 
+						message: $("#text-basic").val()
+					},
+					success: function( data ) {
+					},
+					error: function () {
+					}
+				});
+				
+			});
+
+			$("#button-off").click(function() {
+				$.ajax({
+					url: "send_message",
+					data: { 
+						message: "" 
+					},
+					success: function( data ) {
+					},
+					error: function () {
+					}
+				});
+			});
+
+			$(".color-slider").on('change',function() {
+				$.ajax({
+					url: "set_color",
+					data: { 
+						red: $("#slider-red").val(), 
+						green: $("#slider-green").val(),
+						blue: $("#slider-blue").val() 
+					},
+					success: function( data ) {
+					},
+					error: function () {
+					}
+				});
+			});
+
+			$("#delay-slider").on('change',function() {
+				$.ajax({
+					url: "set_sliding_delay",
+					data: { 
+						delay: $("#delay-slider").val() 
+					},
+					success: function( data ) {
+					},
+					error: function () {
+					}
+				});
+			});
+			
+			$("#button-shutdown").click(function() {
+				$.ajax({
+					url: "do_shutdown",
+					data: { 
+						message: ""
+					},
+					success: function( data ) {
+					},
+					error: function () {
+					}
+				});
+			});
+
+			$("#button-reboot").click(function() {
+				$.ajax({
+					url: "do_reboot",
+					data: { 
+						message: ""
+					},
+					success: function( data ) {
+					},
+					error: function () {
+					}
+				});
+			});
+
+		});
+	</script>
+</head>
+<body>
+
+<div data-role="page">
+
+	<div data-role="header">
+		<h1>Led Panel</h1>
+	</div><!-- /header -->
+
+	<div role="main" class="ui-content">
+		<div class="ui-body ui-body-a ui-corner-all">
+			<h3>Sliding message</h3>
+			<label for="text-basic">Message:</label>
+			<input type="text" name="text-basic" id="text-basic" value="LedPanel">
+			<button class="ui-btn ui-btn-inline" id="button-send">Send</button> 
+			<button class="ui-btn ui-btn-inline" id="button-off">Off</button> 
+			<label for="delay-slider">Delay:</label>
+			<input type="range" name="delay-slider" id="delay-slider" min="0" max="100" value="0">
+		</div>
+
+		<div class="ui-body ui-body-a ui-corner-all">
+			<h3>Color setting</h3>
+			<label for="slider-red">Red:</label>
+			<input class="color-slider" type="range" name="slider-red" id="slider-red" min="0" max="15" value="1">
+			<label for="slider-green">Green:</label>
+			<input class="color-slider" type="range" name="slider-green" id="slider-green" min="0" max="15" value="1">
+			<label for="slider-blue">Blue:</label>
+			<input class="color-slider" type="range" name="slider-blue" id="slider-blue" min="0" max="15" value="1">
+		</div>
+		
+		<div class="ui-body ui-body-a ui-corner-all">
+			<h3>System</h3>
+			<button class="ui-btn ui-btn-inline" id="button-reboot">Reboot</button> 
+			<button class="ui-btn ui-btn-inline" id="button-shutdown">Shutdown</button> 
+		</div>
+		
+	</div><!-- /content -->
+
+	<div data-role="footer">
+		<h4>www.acmesystems.it</h4>
+	</div><!-- /footer -->
+</div><!-- /page -->
+
+</body>
+</html>
