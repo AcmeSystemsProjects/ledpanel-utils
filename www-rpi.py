@@ -124,7 +124,8 @@ class send_message(tornado.web.RequestHandler):
 
 class do_shutdown(tornado.web.RequestHandler):
 	def get(self):
-		print "SSSSSSSSSSSSSSSSSSSS"
+		global t
+		t.set_message("Shutdown....")
 		subprocess.call(["sudo", 
 				"shutdown", 
 				"-H",  
@@ -135,7 +136,8 @@ class do_shutdown(tornado.web.RequestHandler):
 						
 class do_reboot(tornado.web.RequestHandler):
 	def get(self):
-		print "RRRRRRRRRRRRRRRRRRR"
+		global t
+		t.set_message("Reboot....")
 		subprocess.call(["sudo", 
 				"reboot", 
 				"&"
