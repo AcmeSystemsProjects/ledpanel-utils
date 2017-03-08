@@ -68,22 +68,12 @@ except:
 
 print "Atac module connecting to the server..........."
 
-try:
-   s1 = Server('http://muovi.roma.it/ws/xml/autenticazione/1', transport=p)
-   s2 = Server('http://muovi.roma.it/ws/xml/paline/7', transport=p)
-except:
-   print ("Data error")
-   exit (254)	
+s1 = Server('http://muovi.roma.it/ws/xml/autenticazione/1', transport=p)
+s2 = Server('http://muovi.roma.it/ws/xml/paline/7', transport=p)
 
-
-try:
-   hk = sha.new(USER_KEY)
-   token = s1.autenticazione.Accedi(DEV_KEY, hk.hexdigest())
-   print "Atac module initialized."
-except:
-   print ("Communication error")
-   exit (255)	
-
+hk = sha.new(USER_KEY)
+token = s1.autenticazione.Accedi(DEV_KEY, hk.hexdigest())
+print "Atac module initialized."
 
 def set_line (nl):
 	global linea

@@ -15,7 +15,7 @@ from PIL import ImageFont
 from PIL import Image
 from PIL import ImageDraw
 import StringIO
-import atac
+
 
 def get_color (tim):
 	#
@@ -32,7 +32,7 @@ def get_color (tim):
 	else:
 		return (20,0,0)
 
-def get_text_color ():
+def get_text_color (atac):
 	closer_m, closer_s, n_stop, msg = atac.get_time_of_arrival_2 ()
 	if closer_m < 0:
 		if closer_s == -1 and len(msg):
@@ -52,9 +52,14 @@ if __name__ == '__main__':
 		print
 		quit()
 
-	# initialize atac module
-	atac.set_line (sys.argv[1])
-	atac.set_pole (sys.argv[2])
+	try:
+		import atac
+		# initialize atac module
+		atac.set_line (sys.argv[1])
+		atac.set_pole (sys.argv[2])
+	except Exception as e:
+		text = "Error connecting to ATAC"
+		text = str(e)
 
 	# load font
 	font = ImageFont.truetype('../fonts/Ubuntu-B.ttf', 32)
@@ -78,7 +83,18 @@ if __name__ == '__main__':
 			# 
 			# get updated text from real time data 
 			#
-			text, color = get_text_color()			
+			try:
+				atac
+			except NameError:
+				color = (20,0,0)
+				print text
+				time.sleep(10)
+			else:
+				try:
+					text, color = get_text_color(atac)
+				except:
+					text, color = "Error in ATAC data acquisition",(20,20,0)
+
 			width, height = font.getsize(text)
 	
 		x=x-1
