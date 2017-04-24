@@ -159,7 +159,7 @@ application = tornado.web.Application([
 	(r"/set_sliding_delay", set_sliding_delay),
 	(r"/do_shutdown", do_shutdown),
 	(r"/do_reboot", do_reboot),
-	(r"/(.*)", tornado.web.StaticFileHandler, {"path": ".","default_filename": "index-rpi.html"}),
+	(r"/(.*)", tornado.web.StaticFileHandler, {"path": ".","default_filename": "index-arietta.html"}),
 ])
 
 if __name__ == "__main__":	
