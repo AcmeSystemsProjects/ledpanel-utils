@@ -173,7 +173,9 @@ class do_reboot(tornado.web.RequestHandler):
 		global t
 		t.set_message("Reboot....")
 		subprocess.call([ 
-				"reboot", 
+				"shutdown", 
+				"-r",
+				"now",
 				"&"
 				])
 												
