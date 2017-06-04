@@ -3,8 +3,8 @@ from time import sleep
 
 
 class MyButton(PushButton):
-	def __init(self, name):
-		PushButton.__init(self, name)
+	def __init__(self, name):
+		PushButton.__init__(self, name)
 		
 	def pressed (self):
 		print ">>>>>>>>>>>>>"
